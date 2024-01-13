@@ -1,0 +1,60 @@
+const fs = require('fs');
+const { listenerCount } = require('process');
+// const input = fs.readFileSync('/dev/stdin').toString().trim().split('\n');
+const input = `
+5 5 1
+1 4
+1 2
+2 3
+2 4
+3 4
+`.toString().trim().split('\n');
+
+const [n, m, r] = input[0].split(' ').map(Number);
+let graph = new Map();
+let visited = new Array(n).fill(0);
+// [ 0, 0, 0, 0, 0 ]
+let cnt = 1;
+
+for(let i=1; i<=n; i++){
+    graph.set(i, []);
+}
+// Map(5) { 1 => [], 2 => [], 3 => [], 4 => [], 5 => [] } 
+
+for(let i=1; i<=m; i++){
+    const [x, y] = input[i].split(' ').map(Number);
+    graph.get(x).push(y);
+    graph.get(y).push(x);
+}
+/* Map(5) {
+  1 => [ 4, 2 ],     
+  2 => [ 1, 3, 4 ],  
+  3 => [ 2, 4 ],     
+  4 => [ 1, 2, 3 ],  
+  5 => []
+} */
+
+graph.forEach((v) => {
+    v.sort((a, b) => a-b);
+});
+/* Map(5) {
+  1 => [ 2, 4 ],     
+  2 => [ 1, 3, 4 ],  
+  3 => [ 2, 4 ],     
+  4 => [ 1, 2, 3 ],  
+  5 => []
+} */
+
+const dfs = (node) => {
+    if(visited[node-1] == 0){
+        visited[node-1] = cnt;
+        cnt++;
+        graph.get(node).forEach((v)=>{
+            dfs(v)
+        })
+    }
+}
+// [ 1, 2, 3, 4, 0 ]
+
+dfs(r);
+console.log(visited.join('\n'));
